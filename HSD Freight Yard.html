@@ -1,0 +1,970 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>HSD Freight Yard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@500;600&family=Sora:wght@400;600;700;800&display=swap">
+<style>
+:root{
+  /* Layout: a fixed, lit 3D port scene sits behind everything; copy floats over it on frosted teal panels, then solid brand sections close the page */
+  --night:#0A2128;
+  --teal:#0F313A;
+  --teal-2:#15424E;
+  --panel:rgba(9,32,39,.70);
+  --mist:#B8CED4;
+  --paper:#EEF3F4;
+  --muted:#8FA9B0;
+  --coral:#F94735;
+  --red:#C1272D;
+  --line:rgba(184,206,212,.18);
+  --display:"Sora","Segoe UI",system-ui,sans-serif;
+  --body:"Inter Tight","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --logo:"Anton",Impact,"Arial Narrow",sans-serif;
+  --in:clamp(16px,4vw,64px);
+  color-scheme:dark;
+}
+html{scroll-behavior:smooth;background:var(--night)}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--night);color:var(--paper);font:400 17px/1.6 var(--body);overflow-x:hidden}
+h1,h2,h3{text-wrap:balance;font-family:var(--display)}
+a{color:inherit}
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--coral);outline-offset:3px}
+
+#scene{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:pan-y}
+.no-webgl #scene{display:none}
+.no-webgl body{background:radial-gradient(120% 80% at 70% 20%,var(--teal-2),var(--night))}
+.loading{position:fixed;left:50%;top:58%;transform:translateX(-50%);z-index:0;font:500 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);transition:opacity .6s}
+.ready .loading,.no-webgl .loading{opacity:0}
+
+.bars{display:inline-flex;gap:3px;vertical-align:middle;margin-right:10px}
+.bars i{display:block;width:9px;height:13px;background:var(--coral);transform:skewX(-22deg);border-radius:1px}
+
+/* header */
+.bar{position:fixed;top:0;left:0;right:0;z-index:20;padding-top:env(safe-area-inset-top,0px);
+  background:var(--night);background:color-mix(in srgb,var(--night) 70%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.util{display:flex;justify-content:space-between;gap:16px;padding:8px var(--in) 7px;border-bottom:1px solid var(--line);font:500 11.5px/1.3 var(--mono);color:var(--muted);letter-spacing:.02em}
+.util span{white-space:nowrap}
+.util .grp{display:flex;gap:24px;min-width:0;overflow:hidden}
+.main-bar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px var(--in)}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--paper)}
+.logo svg{height:30px;width:auto;display:block}
+.logo small{font:600 10px/1.2 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mist);border-left:1px solid var(--line);padding-left:12px}
+.nav{display:flex;align-items:center;gap:28px}
+.nav a.lnk{font:600 13px/1 var(--display);text-decoration:none;color:var(--paper);opacity:.85}
+.nav a.lnk:hover{opacity:1;color:var(--coral)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 22px;border-radius:999px;
+  font:700 15px/1 var(--display);text-decoration:none;border:1.5px solid transparent;cursor:pointer;transition:transform .25s ease,background .25s ease,color .25s ease}
+.btn:hover{transform:translateY(-2px)}
+.btn-coral{background:var(--coral);color:var(--night)}
+.btn-coral:hover{background:#ff5d4c}
+.btn-line{border-color:rgba(238,243,244,.5);color:var(--paper);background:rgba(10,33,40,.35)}
+.btn-line:hover{border-color:var(--paper)}
+
+/* chapters over the scene */
+main{position:relative;z-index:1}
+.ch{position:relative;min-height:130vh;display:flex;align-items:center;padding-block:150px 90px;pointer-events:none}
+.ch .in{width:100%;padding-inline:var(--in);display:flex;flex-direction:column;gap:18px}
+.ch a,.ch button,.ch .panel,.ch .hint{pointer-events:auto}
+.hero{min-height:100vh;align-items:flex-end;padding-block:150px 56px}
+.hero .in{align-items:flex-start}
+.hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(85% 70% at 0% 100%,rgba(6,22,27,.82),rgba(6,22,27,0) 62%)}
+.hero h1{font:800 clamp(44px,6.6vw,104px)/.95 var(--display);letter-spacing:-.035em;margin:0;max-width:11ch;text-shadow:0 8px 40px rgba(5,20,25,.55)}
+.hero .lede{margin:0;max-width:46ch;font-size:18px;color:var(--paper);text-shadow:0 2px 18px rgba(5,20,25,.7)}
+.eyebrow{display:flex;align-items:center;font:600 12px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
+.row{display:flex;flex-wrap:wrap;gap:12px}
+.hint{display:inline-flex;align-items:center;gap:10px;font:500 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mist);
+  background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:11px 15px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.hint i{width:7px;height:7px;border-radius:50%;background:var(--coral);box-shadow:0 0 0 4px rgba(249,71,53,.25)}
+
+.panel{width:100%;max-width:480px;background:var(--panel);-webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);
+  border:1px solid var(--line);border-radius:24px;padding:clamp(24px,3vw,38px);box-shadow:0 30px 60px -30px rgba(0,0,0,.6)}
+.right{align-self:flex-end}
+.panel h2{font:800 clamp(34px,3.8vw,54px)/1 var(--display);letter-spacing:-.03em;margin:14px 0 14px}
+.panel p{margin:0;color:#D6E3E6}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;padding:0;list-style:none}
+.chips li{font:500 12px/1 var(--mono);letter-spacing:.04em;padding:9px 12px;border:1px solid var(--line);border-radius:999px;color:var(--mist)}
+.duo{display:grid;gap:18px;margin-top:6px}
+.duo h3{font:700 17px/1.2 var(--display);margin:0 0 6px;color:var(--paper)}
+.duo div{padding-top:16px;border-top:1px solid var(--line)}
+.regions{margin:20px 0 0;display:grid;gap:0;border-top:1px solid var(--line)}
+.regions div{display:grid;grid-template-columns:118px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.regions dt{font:600 11px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--coral)}
+.regions dd{margin:0;font-size:14.5px;color:#D6E3E6;min-width:0}
+
+/* marquee */
+.ticker{position:relative;z-index:1;background:var(--coral);color:var(--night);overflow:hidden;border-block:1px solid rgba(0,0,0,.15)}
+.ticker-track{display:flex;width:max-content;animation:tick 38s linear infinite}
+.ticker span{display:flex;align-items:center;gap:28px;padding:20px 14px;font:800 clamp(20px,2.6vw,32px)/1 var(--display);letter-spacing:-.02em;white-space:nowrap}
+.ticker span b{display:inline-flex;gap:3px}
+.ticker span b i{display:block;width:9px;height:18px;background:var(--night);transform:skewX(-22deg)}
+@keyframes tick{to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.ticker-track{animation:none}}
+
+/* reveal */
+.reveal{position:relative;z-index:1;background:var(--night);padding-block:clamp(90px,12vw,170px)}
+.reveal .in{padding-inline:var(--in);display:flex;flex-direction:column;gap:30px}
+.rv{position:relative;cursor:crosshair;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.rv-l{margin:0;font:800 clamp(52px,12vw,200px)/.9 var(--display);letter-spacing:-.05em}
+.rv-base{color:var(--teal-2)}
+.rv-top{position:absolute;inset:0;color:var(--paper);background:var(--night);
+  clip-path:circle(var(--r,140px) at var(--rx,72%) var(--ry,55%));transition:clip-path .08s linear}
+.rv-top em{font-style:normal;color:var(--coral)}
+.rv-note{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px 40px;border-top:1px solid var(--line);padding-top:20px}
+.rv-note p{margin:0;max-width:52ch;color:var(--muted)}
+
+/* timeline */
+.road{position:relative;z-index:1;background:var(--teal);padding-block:clamp(80px,10vw,140px)}
+.road .in{padding-inline:var(--in);display:flex;flex-direction:column;gap:clamp(36px,5vw,64px)}
+.sec-h{display:flex;flex-direction:column;gap:14px}
+.sec-h h2{font:800 clamp(40px,6vw,88px)/.95 var(--display);letter-spacing:-.04em;margin:0}
+.miles{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;position:relative}
+.miles::before{content:"";position:absolute;left:0;right:0;top:34px;height:2px;background:repeating-linear-gradient(90deg,var(--mist) 0 18px,transparent 18px 32px);opacity:.45}
+.miles li{position:relative;display:flex;flex-direction:column;gap:12px;min-width:0}
+.post{align-self:flex-start;display:grid;place-items:center;min-width:92px;height:68px;padding:0 14px;border-radius:12px;background:var(--night);border:1.5px solid var(--mist);font:800 30px/1 var(--display);letter-spacing:-.02em;font-variant-numeric:tabular-nums;position:relative;z-index:1}
+.miles li:last-child .post{border-color:var(--coral);color:var(--coral)}
+.miles h3{margin:6px 0 0;font:600 12px/1.3 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
+.miles p{margin:0;color:#D6E3E6;font-size:16px}
+
+/* moves stack */
+.stack{position:relative;z-index:1;background:var(--night);padding-block:clamp(80px,10vw,130px) 14vh}
+.stack .in{padding-inline:var(--in);display:flex;flex-direction:column;gap:28px}
+.card{position:sticky;top:calc(env(safe-area-inset-top,0px) + 120px);min-height:58vh;border-radius:28px;padding:clamp(26px,4vw,60px);
+  display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,4vw,60px);align-items:end;box-shadow:0 -24px 50px -34px rgba(0,0,0,.8);border:1px solid var(--line)}
+.card .num{font:600 13px/1 var(--mono);letter-spacing:.14em;color:inherit;opacity:.7}
+.card h3{font:800 clamp(38px,5.4vw,84px)/.95 var(--display);letter-spacing:-.04em;margin:14px 0 0}
+.card p{margin:0;font-size:18px;max-width:48ch}
+.k1{background:var(--teal-2);color:var(--paper)}
+.k2{background:var(--paper);color:var(--night)}
+.k3{background:var(--coral);color:var(--night)}
+.k4{background:var(--teal);color:var(--paper)}
+
+/* contact */
+.contact{position:relative;z-index:1;background:var(--teal);padding-block:clamp(80px,10vw,130px)}
+.contact .in{padding-inline:var(--in);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:clamp(36px,5vw,90px);align-items:start}
+.contact h2{font:800 clamp(44px,6.4vw,96px)/.95 var(--display);letter-spacing:-.04em;margin:14px 0 18px}
+.contact .lede{margin:0 0 28px;max-width:42ch;color:#D6E3E6;font-size:18px}
+.facts{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 28px}
+.facts div{border-top:1px solid var(--line);padding-top:12px;min-width:0}
+.facts dt{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mist);margin-bottom:8px}
+.facts dd{margin:0;font:600 16px/1.4 var(--display);overflow-wrap:anywhere;user-select:all}
+.facts dd a{text-decoration:none}
+.facts dd a:hover{color:var(--coral)}
+form{background:var(--night);border:1px solid var(--line);border-radius:24px;padding:clamp(22px,3vw,36px);display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.f{display:flex;flex-direction:column;gap:8px;min-width:0}
+.f.full{grid-column:1/-1}
+label{font:600 11px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mist)}
+input[type=text],input[type=tel],input[type=email],textarea{font:500 16px/1.3 var(--body);color:var(--paper);background:var(--teal);border:1px solid var(--line);border-radius:12px;min-height:50px;padding:13px 14px;width:100%;box-sizing:border-box}
+textarea{min-height:120px;resize:vertical}
+input::placeholder,textarea::placeholder{color:#6F8C94}
+.check{display:flex;gap:12px;align-items:flex-start;font:400 14px/1.5 var(--body);letter-spacing:0;text-transform:none;color:#C9D8DC;cursor:pointer}
+.check input{width:18px;height:18px;margin:2px 0 0;accent-color:var(--coral);flex:none}
+.status{grid-column:1/-1;margin:0;font:500 13px/1.5 var(--mono);color:var(--coral);min-height:1em}
+.req{font:500 11px/1 var(--mono);color:var(--muted);grid-column:1/-1;margin:0}
+
+footer{position:relative;z-index:1;background:var(--night);border-top:1px solid var(--line)}
+footer .in{padding-inline:var(--in);padding-block:48px 28px;display:grid;grid-template-columns:minmax(0,1.2fr) repeat(2,minmax(0,1fr));gap:32px}
+footer h4{margin:0 0 12px;font:600 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
+footer p,footer li{margin:0;color:var(--muted);font-size:14.5px}
+footer ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+footer a{text-decoration:none}
+footer a:hover{color:var(--coral)}
+.fine{grid-column:1/-1;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:20px;font:500 11.5px/1.4 var(--mono);color:var(--muted)}
+
+@media (max-width:980px){
+  .util .addr{display:none}
+  .card{grid-template-columns:minmax(0,1fr);align-items:start}
+}
+@media (max-width:760px){
+  .util{display:none}
+  .nav a.lnk{display:none}
+  .logo small{display:none}
+  .ch{align-items:flex-end;min-height:135vh;padding-block:58vh 40px}
+  .hero{padding-block:52vh 28px;min-height:100vh}
+  .right{align-self:stretch}
+  .panel{max-width:none}
+  .hero .lede{font-size:16px}
+  .miles{grid-template-columns:minmax(0,1fr);gap:28px}
+  .miles::before{left:46px;right:auto;top:0;bottom:0;width:2px;height:auto;background:repeating-linear-gradient(180deg,var(--mist) 0 18px,transparent 18px 32px)}
+  .contact .in{grid-template-columns:minmax(0,1fr)}
+  form{grid-template-columns:minmax(0,1fr)}
+  .facts{grid-template-columns:minmax(0,1fr)}
+  footer .in{grid-template-columns:minmax(0,1fr)}
+  .card{top:calc(env(safe-area-inset-top,0px) + 80px)}
+}
+</style>
+
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="loading" aria-hidden="true">Loading the yard…</div>
+
+<header class="bar">
+  <div class="util">
+    <div class="grp"><span>+1 (866) 837-0055 · Toll free</span><span>reach@shiphsd.com</span></div>
+    <span class="addr">1360 N Bullard Ave Suite 200, Goodyear, AZ 85395</span>
+  </div>
+  <div class="main-bar">
+    <a class="logo" href="#top" aria-label="HSD Logistics LLC, back to top">
+      <svg viewBox="0 0 670 352" aria-hidden="true">
+        <path fill="currentColor" d="M8 8H92V130H128V8H212V348L128 262V200H92V262L8 348Z"/>
+        <g fill="currentColor"><rect x="107" y="268" width="6" height="12"/><rect x="107" y="288" width="6" height="12"/><rect x="107" y="308" width="6" height="12"/><rect x="107" y="328" width="6" height="14"/></g>
+        <text x="222" y="348" fill="currentColor" font-family="Anton, Impact, 'Arial Narrow', sans-serif" font-size="470" textLength="440" lengthAdjust="spacingAndGlyphs">SD</text>
+      </svg>
+      <small>Logistics<br>as a Service</small>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a class="lnk" href="#overland">Services</a>
+      <a class="lnk" href="#network">Global network</a>
+      <a class="lnk" href="#history">History</a>
+      <a class="lnk" href="#moves">Moves</a>
+      <a class="btn btn-coral" href="#contact">Ship with HSD</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="ch hero" data-ch="0" id="top">
+    <div class="in">
+      <span class="eyebrow"><span class="bars"><i></i><i></i><i></i></span>HSD Logistics LLC · Goodyear, Arizona</span>
+      <h1>Fast delivery and secure packages.</h1>
+      <p class="lede">With our commitment to customer satisfaction, we offer fast and reliable delivery. Your packages are handled with care, and our logistics system and dedicated team work to get every order to its destination on time.</p>
+      <div class="row">
+        <a class="btn btn-coral" href="#contact">Ship with HSD</a>
+        <a class="btn btn-line" href="#overland">Explore services</a>
+      </div>
+      <span class="hint"><i></i>Move across the yard · scroll to follow the freight</span>
+    </div>
+  </section>
+
+  <section class="ch" data-ch="1" id="overland">
+    <div class="in">
+      <div class="panel right">
+        <span class="eyebrow"><span class="bars"><i></i><i></i><i></i></span>Overland freight</span>
+        <h2>Overland transport</h2>
+        <p>Reliable and cost-effective solutions for your domestic and cross-border shipments, with a range of transportation options including truckload and less-than-truckload services.</p>
+        <ul class="chips"><li>Truckload</li><li>Less-than-truckload</li><li>Domestic</li><li>Cross-border</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="ch" data-ch="2" id="ocean">
+    <div class="in">
+      <div class="panel">
+        <span class="eyebrow"><span class="bars"><i></i><i></i><i></i></span>Ocean &amp; storage</span>
+        <h2>Ocean freight and warehousing</h2>
+        <div class="duo">
+          <div><h3>Ocean freight</h3><p>Full container load (FCL) and less than container load (LCL) shipping, to accommodate any cargo volume.</p></div>
+          <div><h3>Warehousing</h3><p>Secure, efficient storage with inventory management, order fulfilment and value-added services.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="ch" data-ch="3" id="network">
+    <div class="in">
+      <div class="panel">
+        <span class="eyebrow"><span class="bars"><i></i><i></i><i></i></span>Air freight · global network</span>
+        <h2>Delivered worldwide</h2>
+        <p>From high-value goods to urgent medical supplies, our global network of partners handles customs clearance and timely delivery to destinations worldwide.</p>
+        <dl class="regions">
+          <div><dt>North America</dt><dd>United States, Canada</dd></div>
+          <div><dt>Europe</dt><dd>Germany, Netherlands, Switzerland, Portugal, Ireland</dd></div>
+          <div><dt>Middle East</dt><dd>United Arab Emirates, Turkey, Saudi Arabia, Lebanon</dd></div>
+          <div><dt>Asia Pacific</dt><dd>Australia, Indonesia, China, Thailand, Japan, New Zealand</dd></div>
+        </dl>
+      </div>
+      <span class="hint"><i></i>Drag to turn the globe</span>
+    </div>
+  </section>
+
+  <div class="ticker" aria-label="Women in Transportation. Logistics as a Service. Arizona: where innovation takes root.">
+    <div class="ticker-track" aria-hidden="true">
+      <span>Women in Transportation <b><i></i><i></i><i></i></b> Logistics as a Service <b><i></i><i></i><i></i></b> Arizona: Where Innovation Takes Root <b><i></i><i></i><i></i></b></span>
+      <span>Women in Transportation <b><i></i><i></i><i></i></b> Logistics as a Service <b><i></i><i></i><i></i></b> Arizona: Where Innovation Takes Root <b><i></i><i></i><i></i></b></span>
+    </div>
+  </div>
+
+  <section class="reveal" aria-label="Fast delivery, secure packages">
+    <div class="in">
+      <div class="rv" id="rv">
+        <p class="rv-l rv-base">Fast delivery.<br>Secure packages.</p>
+        <p class="rv-l rv-top" aria-hidden="true">Fast <em>delivery.</em><br>Secure <em>packages.</em></p>
+      </div>
+      <div class="rv-note">
+        <span class="eyebrow"><span class="bars"><i></i><i></i><i></i></span>Logistics as a Service</span>
+        <p>So you can sit back and let us take care of your shipping needs. Move the cursor over the headline.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="road" id="history">
+    <div class="in">
+      <div class="sec-h">
+        <span class="eyebrow"><span class="bars"><i></i><i></i><i></i></span>Overland freight</span>
+        <h2>On the road since 2003</h2>
+      </div>
+      <ol class="miles">
+        <li><span class="post">2003</span><h3>Our beginning</h3><p>Entered the industry to revolutionise the field.</p></li>
+        <li><span class="post">2012</span><h3>Achievement</h3><p>Expanded operations to new regions and countries, and secured contracts with major corporations and industries.</p></li>
+        <li><span class="post">2018</span><h3>Achievement</h3><p>Achieved consistently high customer satisfaction scores and retained customers through loyalty programs.</p></li>
+        <li><span class="post">2024</span><h3>Our ideas</h3><p>IoT-enabled logistics: devices that monitor shipments, optimize fleet management and improve asset tracking.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="stack" id="moves" aria-label="Solutions that make changes">
+    <div class="in">
+      <div class="sec-h">
+        <span class="eyebrow"><span class="bars"><i></i><i></i><i></i></span>Ship with HSD</span>
+        <h2>Solutions that make changes</h2>
+      </div>
+      <article class="card k1">
+        <div><span class="num">01</span><h3>Long distance moves</h3></div>
+        <p>From meticulous packing and efficient transportation to timely delivery and unpacking, we make it a stress-free experience. With our nationwide network and state-of-the-art logistics, your belongings are in safe hands.</p>
+      </article>
+      <article class="card k2">
+        <div><span class="num">02</span><h3>International moves</h3></div>
+        <p>A global network of trusted partners gives you door-to-door delivery, customs clearance and insurance coverage. Whether you're moving a single item or an entire household, we tailor the move to your needs.</p>
+      </article>
+      <article class="card k3">
+        <div><span class="num">03</span><h3>Corporate moves</h3></div>
+        <p>Streamline your corporate relocation and minimize downtime. Our team handles every part of the move, from initial planning to final delivery, with transportation, customs clearance and warehousing.</p>
+      </article>
+      <article class="card k4">
+        <div><span class="num">04</span><h3>Local moves in town</h3></div>
+        <p>Flexible scheduling, competitive pricing and a commitment to customer satisfaction. Whether you're moving across town or just down the street, we make your local move a breeze.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="contact" id="contact">
+    <div class="in">
+      <div>
+        <span class="eyebrow"><span class="bars"><i></i><i></i><i></i></span>Contact us</span>
+        <h2>Let's work together.</h2>
+        <p class="lede">Let our experienced team handle your move, from start to finish. Get in touch for a smooth and stress-free experience.</p>
+        <dl class="facts">
+          <div><dt>Toll free</dt><dd>+1 (866) 837-0055</dd></div>
+          <div><dt>Write to us</dt><dd>reach@shiphsd.com</dd></div>
+          <div><dt>Quotes</dt><dd>quotes@shiphsd.com</dd></div>
+          <div><dt>WhatsApp</dt><dd>+1 (623) 498-3127</dd></div>
+          <div><dt>Our location</dt><dd>1360 N Bullard Ave Suite 200<br>Goodyear, AZ 85395, USA</dd></div>
+          <div><dt>Follow</dt><dd><a href="https://www.linkedin.com/company/shiphsd/">LinkedIn</a> · <a href="https://www.instagram.com/shiphsd">Instagram</a></dd></div>
+        </dl>
+      </div>
+      <form id="cf" novalidate>
+        <p class="req">Fields marked with * are required</p>
+        <div class="f"><label for="c-name">Name *</label><input type="text" id="c-name" name="name" autocomplete="name"></div>
+        <div class="f"><label for="c-phone">Phone *</label><input type="tel" id="c-phone" name="phone" autocomplete="tel"></div>
+        <div class="f full"><label for="c-email">Email *</label><input type="email" id="c-email" name="email" autocomplete="email"></div>
+        <div class="f full"><label for="c-msg">Message *</label><textarea id="c-msg" name="message" placeholder="What are you shipping, from where to where?"></textarea></div>
+        <div class="f full">
+          <label class="check" for="c-sms"><input type="checkbox" id="c-sms" name="sms">I agree to receive SMS alerts from HSD LOGISTICS LLC. Message and data rates may apply.</label>
+          <label class="check" for="c-privacy"><input type="checkbox" id="c-privacy" name="privacy">I agree to the privacy policy *</label>
+        </div>
+        <div class="f full"><button class="btn btn-coral" type="submit" id="c-submit">Send message</button></div>
+        <p class="status" id="c-status" role="status"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="in">
+    <div>
+      <h4>HSD Logistics LLC</h4>
+      <p>Logistics as a Service. Air, ocean and overland freight, warehousing and moves, from Goodyear, Arizona.</p>
+    </div>
+    <div>
+      <h4>Our global presence</h4>
+      <ul><li>United States</li><li>Canada</li><li>Australia</li><li>Dubai</li><li>China</li></ul>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#contact">Request a freight quote</a></li>
+        <li><a href="#network">Global network</a></li>
+        <li><a href="https://shiphsd.com/privacy-policy/">Privacy policy</a></li>
+        <li><a href="https://shiphsd.com/terms-conditions/">Terms &amp; conditions</a></li>
+      </ul>
+    </div>
+    <div class="fine"><span>All rights reserved © Southsquar Execution</span><span>Concept prototype · live 3D scene</span></div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var cf=document.getElementById('cf'),cs=document.getElementById('c-status');
+  cf.addEventListener('submit',function(e){
+    e.preventDefault();
+    var need=[['c-name','your name'],['c-phone','a phone number'],['c-email','your email'],['c-msg','a message']];
+    for(var i=0;i<need.length;i++){var el=document.getElementById(need[i][0]);if(!el.value.trim()){cs.textContent='Add '+need[i][1]+' so the HSD team can reply.';el.focus();return;}}
+    if(!/^\S+@\S+\.\S+$/.test(document.getElementById('c-email').value.trim())){cs.textContent='That email address looks incomplete.';document.getElementById('c-email').focus();return;}
+    if(!document.getElementById('c-privacy').checked){cs.textContent='Tick the privacy policy box to send.';return;}
+    cs.textContent='Prototype only: nothing was sent. On the live site this message goes to reach@shiphsd.com.';
+  });
+  var rv=document.getElementById('rv');
+  function setRv(e){var b=rv.getBoundingClientRect();rv.style.setProperty('--rx',(e.clientX-b.left)+'px');rv.style.setProperty('--ry',(e.clientY-b.top)+'px');}
+  rv.addEventListener('pointermove',setRv);rv.addEventListener('pointerdown',setRv);
+  rv.addEventListener('pointerenter',function(){rv.style.setProperty('--r','190px');});
+  rv.addEventListener('pointerleave',function(){rv.style.setProperty('--r','140px');});
+})();
+</script>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+const root=document.documentElement;
+const canvas=document.getElementById('scene');
+let renderer;
+try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});}
+catch(e){root.classList.add('no-webgl');throw e;}
+
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const small=innerWidth<760||matchMedia('(pointer: coarse)').matches;
+renderer.setPixelRatio(Math.min(devicePixelRatio||1,small?1.5:2));
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.0;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.Fog(0x1b3940,120,430);
+const pmrem=new THREE.PMREMGenerator(renderer);
+scene.environment=pmrem.fromScene(new RoomEnvironment(renderer),0.04).texture;
+const cam=new THREE.PerspectiveCamera(30,innerWidth/innerHeight,0.5,1500);
+
+/* ---------- dusk sky ---------- */
+scene.add(new THREE.Mesh(new THREE.SphereGeometry(800,32,16),new THREE.ShaderMaterial({
+  side:THREE.BackSide,depthWrite:false,fog:false,
+  uniforms:{top:{value:new THREE.Color('#03121a')},mid:{value:new THREE.Color('#0b2a33')},hor:{value:new THREE.Color('#21434a')},glow:{value:new THREE.Color('#e07a5c')},sd:{value:new THREE.Vector3(0.5,0,-0.86).normalize()}},
+  vertexShader:'varying vec3 vP;void main(){vP=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader:'uniform vec3 top,mid,hor,glow,sd;varying vec3 vP;void main(){vec3 d=normalize(vP);float h=d.y;vec3 c=mix(hor,mid,smoothstep(-0.02,0.2,h));c=mix(c,top,smoothstep(0.2,0.8,h));vec3 fl=normalize(vec3(d.x,0.0,d.z));float g=pow(max(dot(fl,sd),0.0),4.0)*(1.0-smoothstep(-0.04,0.3,h));c+=glow*g*0.5;gl_FragColor=vec4(c,1.0);}'
+})));
+
+/* ---------- lighting ---------- */
+scene.add(new THREE.HemisphereLight(0xbcd6dd,0x0b2128,0.55));
+const sun=new THREE.DirectionalLight(0xffd2a8,2.6);
+sun.position.set(60,55,-50);sun.castShadow=true;
+sun.shadow.mapSize.set(small?1024:2048,small?1024:2048);
+Object.assign(sun.shadow.camera,{left:-62,right:62,top:62,bottom:-62,near:10,far:260});
+sun.shadow.bias=-0.0004;sun.shadow.normalBias=0.03;
+scene.add(sun);
+const fill=new THREE.DirectionalLight(0xa9cbd6,0.95);fill.position.set(-30,40,80);scene.add(fill);
+
+/* ---------- procedural textures ---------- */
+function canvasTex(w,h,draw,repeat,srgb){
+  const c=document.createElement('canvas');c.width=w;c.height=h;const g=c.getContext('2d');draw(g,w,h);
+  const t=new THREE.CanvasTexture(c);t.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  if(repeat){t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(repeat[0],repeat[1]);}
+  if(srgb)t.colorSpace=THREE.SRGBColorSpace;
+  return t;
+}
+const corrugation=canvasTex(256,8,(g,w,h)=>{
+  for(let x=0;x<w;x++){const v=Math.round(128+110*Math.sin(x/w*Math.PI*2*8));g.fillStyle=`rgb(${v},${v},${v})`;g.fillRect(x,0,1,h);}
+},[3,1]);
+const concrete=canvasTex(1024,1024,(g,w,h)=>{
+  const n=8,s=w/n;
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++){const l=40+Math.random()*9;g.fillStyle=`rgb(${l},${l+14},${l+19})`;g.fillRect(i*s,j*s,s,s);}
+  for(let k=0;k<26000;k++){const l=28+Math.random()*52;g.fillStyle=`rgba(${l},${l+12},${l+16},${Math.random()*0.35})`;g.fillRect(Math.random()*w,Math.random()*h,1.5,1.5);}
+  for(let k=0;k<46;k++){const x=Math.random()*w,y=Math.random()*h,r=10+Math.random()*44;const gr=g.createRadialGradient(x,y,0,x,y,r);gr.addColorStop(0,'rgba(8,18,22,.33)');gr.addColorStop(1,'rgba(8,18,22,0)');g.fillStyle=gr;g.fillRect(x-r,y-r,2*r,2*r);}
+  g.strokeStyle='rgba(8,18,22,.8)';g.lineWidth=3;
+  for(let i=0;i<=n;i++){g.beginPath();g.moveTo(i*s,0);g.lineTo(i*s,h);g.stroke();g.beginPath();g.moveTo(0,i*s);g.lineTo(w,i*s);g.stroke();}
+},[18.75,12.5],true);
+const tread=canvasTex(512,64,(g,w,h)=>{
+  g.fillStyle='#8a8a8a';g.fillRect(0,0,w,h);g.fillStyle='#161616';
+  for(let x=0;x<w;x+=16){g.fillRect(x,0,5,h*0.4);g.fillRect(x+8,h*0.6,5,h*0.4);}
+  g.fillRect(0,h*0.46,w,h*0.08);
+},[3,1]);
+const posts=canvasTex(512,8,(g,w,h)=>{g.fillStyle='#909090';g.fillRect(0,0,w,h);g.fillStyle='#5a5a5a';for(let x=0;x<w;x+=64)g.fillRect(x,0,3,h);},[26,1]);
+
+/* ---------- materials ---------- */
+const M={
+  paint:new THREE.MeshPhysicalMaterial({color:0x0F313A,metalness:0.55,roughness:0.26,clearcoat:1,clearcoatRoughness:0.05,envMapIntensity:1.3}),
+  chrome:new THREE.MeshStandardMaterial({color:0xeef3f5,metalness:1,roughness:0.1,envMapIntensity:1.7}),
+  alum:new THREE.MeshStandardMaterial({color:0xd4dce0,metalness:1,roughness:0.2,envMapIntensity:1.5}),
+  steel:new THREE.MeshStandardMaterial({color:0x2a3438,metalness:0.7,roughness:0.45}),
+  dark:new THREE.MeshStandardMaterial({color:0x14191b,metalness:0.5,roughness:0.6}),
+  hole:new THREE.MeshStandardMaterial({color:0x0a0c0d,metalness:0.2,roughness:0.8}),
+  rubber:new THREE.MeshStandardMaterial({color:0x151719,metalness:0,roughness:0.9,bumpMap:tread,bumpScale:2.5,side:THREE.DoubleSide}),
+  glass:new THREE.MeshPhysicalMaterial({color:0x061217,metalness:0.2,roughness:0.03,clearcoat:1,envMapIntensity:2,side:THREE.DoubleSide}),
+  trailer:new THREE.MeshStandardMaterial({color:0xEEF3F4,metalness:0.25,roughness:0.36,envMapIntensity:0.9,bumpMap:posts,bumpScale:0.8}),
+  skirt:new THREE.MeshStandardMaterial({color:0x1b2a2f,metalness:0.3,roughness:0.55}),
+  coral:new THREE.MeshPhysicalMaterial({color:0xF94735,metalness:0.3,roughness:0.35,clearcoat:0.8}),
+  head:new THREE.MeshBasicMaterial({color:new THREE.Color(0xfff6e8).multiplyScalar(5)}),
+  tail:new THREE.MeshBasicMaterial({color:new THREE.Color(0xff2a1a).multiplyScalar(3)}),
+  amber:new THREE.MeshBasicMaterial({color:new THREE.Color(0xffa31a).multiplyScalar(3)}),
+  lamp:new THREE.MeshBasicMaterial({color:new THREE.Color(0xffe3c0).multiplyScalar(7)}),
+  crane:new THREE.MeshStandardMaterial({color:0xdfe6e7,metalness:0.35,roughness:0.5}),
+  craneC:new THREE.MeshStandardMaterial({color:0xE0452F,metalness:0.35,roughness:0.45}),
+  concreteDark:new THREE.MeshStandardMaterial({color:0x223439,roughness:0.9}),
+  hull:new THREE.MeshStandardMaterial({color:0x13232a,metalness:0.4,roughness:0.55}),
+  hullRed:new THREE.MeshStandardMaterial({color:0x7a2a24,metalness:0.2,roughness:0.7}),
+  water:new THREE.MeshStandardMaterial({color:0x0a2830,metalness:0.55,roughness:0.12,envMapIntensity:1.1})
+};
+function part(geo,mat,x,y,z,rx=0,ry=0,rz=0){const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);m.rotation.set(rx,ry,rz);m.castShadow=true;m.receiveShadow=true;return m;}
+function beam(a,b,t,mat,parent){const d=b.clone().sub(a);const m=new THREE.Mesh(new THREE.BoxGeometry(t,t,d.length()),mat);m.position.copy(a).add(b).multiplyScalar(0.5);m.lookAt(b);m.castShadow=true;(parent||scene).add(m);return m;}
+let seed=11;function rnd(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;}
+
+/* ---------- ground, road, quay, water ---------- */
+const QUAY=-118;
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(900,600),new THREE.MeshStandardMaterial({map:concrete,roughness:0.92}));
+ground.rotation.x=-Math.PI/2;ground.position.z=QUAY+300;ground.receiveShadow=true;scene.add(ground);
+scene.add(part(new THREE.BoxGeometry(900,2.6,1.4),M.concreteDark,0,-1.3,QUAY-0.7));
+const water=new THREE.Mesh(new THREE.PlaneGeometry(900,500),M.water);water.rotation.x=-Math.PI/2;water.position.set(0,-1.7,QUAY-250);scene.add(water);
+const ROADZ=27;
+const road=new THREE.Mesh(new THREE.PlaneGeometry(900,9),new THREE.MeshStandardMaterial({color:0x0b1d22,roughness:0.78,metalness:0.05}));
+road.rotation.x=-Math.PI/2;road.position.set(0,0.015,ROADZ);road.receiveShadow=true;scene.add(road);
+const dashGeo=new THREE.PlaneGeometry(3,0.16),dashMat=new THREE.MeshStandardMaterial({color:0x8fa3a8,roughness:0.7});
+for(let x=-200;x<=200;x+=7){const d=new THREE.Mesh(dashGeo,dashMat);d.rotation.x=-Math.PI/2;d.position.set(x,0.03,ROADZ);scene.add(d);}
+const edgeMat=new THREE.MeshStandardMaterial({color:0xC99A2E,roughness:0.7});
+[-4.2,4.2].forEach(o=>{const e=new THREE.Mesh(new THREE.PlaneGeometry(900,0.14),edgeMat);e.rotation.x=-Math.PI/2;e.position.set(0,0.03,ROADZ+o);scene.add(e);});
+
+/* ---------- interactive yard containers ---------- */
+const CL=6.06,CH=2.59,CW=2.44;
+const PAL=['#1F5563','#1F5563','#163F4A','#2B3A40','#B8CED4','#E5ECED','#C1272D','#F94735','#1F5563','#E5ECED'].map(h=>new THREE.Color(h));
+const yard=[],cells=[];
+{
+  const COLS=5,ROWS=12,SX=CL+1.1,SZ=CW+0.34;
+  const rowZ=[];let z=0;for(let r=0;r<ROWS;r++){rowZ.push(z);z+=SZ;if(r%4===3)z+=2.6;}
+  const zOff=rowZ[ROWS-1]/2;
+  for(let c=0;c<COLS;c++)for(let r=0;r<ROWS;r++){
+    const q=rnd();const h=q<0.28?1:q<0.66?2:q<0.93?3:4;
+    const cell={x:(c-(COLS-1)/2)*SX,z:rowZ[r]-zOff,lift:0};cells.push(cell);
+    for(let l=0;l<h;l++)yard.push({x:cell.x,y:CH/2+l*CH,z:cell.z,cell,level:l,col:PAL[Math.floor(rnd()*PAL.length)]});
+  }
+}
+const N=yard.length;
+const stackPos=[];
+{
+  const BAYS=3,ROWS=9,SX=CL+0.5,SZ=CW+0.12;let i=0;
+  for(let t=0;t<8&&i<N;t++)for(let r=0;r<ROWS&&i<N;r++)for(let b=0;b<BAYS&&i<N;b++){stackPos.push({x:(b-(BAYS-1)/2)*SX,y:CH/2+t*CH,z:(r-(ROWS-1)/2)*SZ});i++;}
+}
+yard.map((v,k)=>k).sort((a,b)=>(yard[a].level-yard[b].level)||(yard[a].x-yard[b].x)).forEach((k,idx)=>{yard[k].to=stackPos[idx];yard[k].delay=rnd();});
+const boxMat=new THREE.MeshStandardMaterial({roughness:0.5,metalness:0.35,bumpMap:corrugation,bumpScale:1.4,envMapIntensity:0.9});
+const boxes=new THREE.InstancedMesh(new RoundedBoxGeometry(CL,CH,CW,2,0.07),boxMat,N);
+boxes.castShadow=true;boxes.receiveShadow=true;
+yard.forEach((v,k)=>boxes.setColorAt(k,v.col));
+scene.add(boxes);
+
+/* painted slot markings under the interactive yard */
+{
+  const W=44,D=46;
+  const tex=canvasTex(1024,1072,(g,w,h)=>{
+    g.clearRect(0,0,w,h);g.strokeStyle='rgba(232,238,240,.5)';g.lineWidth=4;const sx=w/W,sz=h/D;
+    cells.forEach(c=>g.strokeRect((c.x-CL/2-0.3+W/2)*sx,(c.z-CW/2-0.18+D/2)*sz,(CL+0.6)*sx,(CW+0.36)*sz));
+  },null,true);
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(W,D),new THREE.MeshStandardMaterial({map:tex,transparent:true,roughness:0.8,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1}));
+  m.rotation.x=-Math.PI/2;m.position.y=0.02;m.receiveShadow=true;scene.add(m);
+}
+
+/* ---------- surrounding terminal ---------- */
+const per=[];
+const PPAL=['#1F5563','#2F4F6F','#8C3B32','#3F5F4A','#6B7B80','#C9D3D5','#B8CED4','#2B3A40','#A34A2E','#E5ECED','#C1272D','#14414C','#1F5563','#6B7B80'].map(h=>new THREE.Color(h));
+function block(cx,cz,bays,rows,minT,maxT,base=0){
+  for(let b=0;b<bays;b++)for(let r=0;r<rows;r++){
+    const t=minT+Math.floor(rnd()*(maxT-minT+1));
+    for(let l=0;l<t;l++)per.push({x:cx+(b-(bays-1)/2)*6.5,y:base+CH/2+l*CH,z:cz+(r-(rows-1)/2)*2.56,c:PPAL[Math.floor(rnd()*PPAL.length)]});
+  }
+}
+const rowA=[-84,-56,-28,0,28,56,84];
+rowA.forEach(x=>block(x,-38,4,7,2,5));
+if(!small)rowA.forEach(x=>block(x,-67,4,7,3,5));
+block(-47,-6,3,7,2,4);block(-47,13,3,6,1,4);
+block(47,-8,3,7,2,4);
+if(!small){block(-76,4,4,9,2,4);block(78,2,4,9,2,4);}
+/* ship alongside the quay */
+const SHIPZ=-137;
+if(!small){
+  for(let b=0;b<15;b++)for(let r=0;r<8;r++){
+    const t=2+Math.floor(rnd()*3);
+    for(let l=0;l<t;l++)per.push({x:-48+b*6.6,y:7+CH/2+l*CH,z:SHIPZ+(r-3.5)*2.56,c:PPAL[Math.floor(rnd()*PPAL.length)]});
+  }
+}
+{
+  const pm=new THREE.InstancedMesh(new THREE.BoxGeometry(CL,CH,CW),boxMat,per.length);
+  const d=new THREE.Object3D();
+  per.forEach((p,k)=>{d.position.set(p.x,p.y,p.z);d.updateMatrix();pm.setMatrixAt(k,d.matrix);pm.setColorAt(k,p.c);});
+  pm.castShadow=true;pm.receiveShadow=true;scene.add(pm);
+}
+{
+  const hull=part(new RoundedBoxGeometry(150,12,24,3,2.5),M.hull,6,1,SHIPZ);scene.add(hull);
+  scene.add(part(new THREE.BoxGeometry(149,2.4,24.2),M.hullRed,6,-3.2,SHIPZ));
+  scene.add(part(new THREE.BoxGeometry(11,15,21),M.crane,-62,14.5,SHIPZ));
+  scene.add(part(new THREE.BoxGeometry(11.2,1.4,21.2),M.glass,-62,19.5,SHIPZ));
+  scene.add(part(new THREE.CylinderGeometry(1.2,1.4,8,16),M.craneC,-66,25,SHIPZ));
+}
+/* rubber-tyred gantry cranes straddling the stacks */
+function rtg(x,z,span){
+  const g=new THREE.Group(),H=17,W=8;
+  for(const sx of [-1,1])for(const sz of [-1,1]){
+    g.add(part(new THREE.BoxGeometry(0.9,H,0.9),M.crane,sx*W/2,H/2+1,sz*span/2));
+    g.add(part(new THREE.BoxGeometry(2.2,1.0,1.3),M.dark,sx*W/2,0.6,sz*span/2));
+  }
+  for(const sx of [-1,1])g.add(part(new THREE.BoxGeometry(1.2,1.5,span+1.4),M.craneC,sx*W/2,H+1.8,0));
+  for(const sz of [-1,1])g.add(part(new THREE.BoxGeometry(W+1.4,1.2,1.0),M.crane,0,H+1.6,sz*span/2));
+  g.add(part(new THREE.BoxGeometry(W-1,2,3.4),M.crane,0,H+2.9,span*0.12));
+  g.add(part(new THREE.BoxGeometry(1.8,1.6,1.8),M.glass,W/2-0.2,H-0.4,span*0.12));
+  beam(new THREE.Vector3(-0.2,H+2,span*0.12),new THREE.Vector3(-0.2,H-6,span*0.12),0.08,M.dark,g);
+  beam(new THREE.Vector3(0.2,H+2,span*0.12),new THREE.Vector3(0.2,H-6,span*0.12),0.08,M.dark,g);
+  g.add(part(new THREE.BoxGeometry(6.2,0.5,2.4),M.craneC,0,H-6.2,span*0.12));
+  g.position.set(x,0,z);scene.add(g);
+}
+rtg(-28,-38,21);rtg(56,-38,21);if(!small)rtg(0,-67,21);
+/* ship-to-shore cranes on the quay */
+function sts(x){
+  const g=new THREE.Group(),zl=QUAY+16,zw=QUAY+2,H=38;
+  for(const sx of [-1,1]){
+    for(const z of [zl,zw])g.add(part(new THREE.BoxGeometry(1.6,H,1.6),M.craneC,sx*9,H/2,z));
+    g.add(part(new THREE.BoxGeometry(1.2,1.4,zl-zw),M.craneC,sx*9,18,(zl+zw)/2));
+    g.add(part(new THREE.BoxGeometry(2.4,1.4,6),M.dark,sx*9,0.7,zl));g.add(part(new THREE.BoxGeometry(2.4,1.4,6),M.dark,sx*9,0.7,zw));
+  }
+  for(const z of [zl,zw])g.add(part(new THREE.BoxGeometry(19.6,1.6,1.6),M.craneC,0,H,z));
+  g.add(part(new THREE.BoxGeometry(3,2.6,100),M.crane,0,H+2,QUAY-38));
+  const apex=new THREE.Vector3(0,H+26,QUAY+8);
+  for(const sx of [-1,1]){beam(new THREE.Vector3(sx*6,H+2,zl),apex,1.0,M.crane,g);beam(new THREE.Vector3(sx*6,H+2,zw),apex,1.0,M.crane,g);}
+  [QUAY-40,QUAY-72,QUAY+10].forEach(z=>beam(apex,new THREE.Vector3(0,H+3,z),0.35,M.crane,g));
+  g.add(part(new THREE.BoxGeometry(8,4.5,12),M.crane,0,H+5.2,QUAY+14));
+  g.add(part(new THREE.BoxGeometry(4,2,5),M.craneC,0,H,QUAY-24));
+  g.add(part(new THREE.BoxGeometry(3,2,2.4),M.glass,0,H-1.6,QUAY-24));
+  g.position.x=x;scene.add(g);
+}
+sts(-40);sts(8);if(!small)sts(56);
+/* yard light masts */
+function mast(x,z){
+  scene.add(part(new THREE.CylinderGeometry(0.2,0.34,28,10),M.steel,x,14,z));
+  const h=new THREE.Group();h.position.set(x,28.2,z);
+  h.add(part(new THREE.BoxGeometry(3.4,0.35,1.3),M.steel,0,0,0));
+  for(const i of [-1.2,-0.4,0.4,1.2])h.add(part(new THREE.BoxGeometry(0.62,0.12,1.0),M.lamp,i,-0.22,0));
+  scene.add(h);
+}
+[[-24,-24],[24,-24],[-70,-52],[0,-52],[70,-52],[-62,24],[64,22],[-40,-22]].forEach(([x,z],i)=>{if(!small||i<5)mast(x,z);});
+
+/* ---------- truck ---------- */
+const truck=new THREE.Group();const wheels=[];
+const tireGeo=new THREE.LatheGeometry([[0.31,-0.165],[0.44,-0.172],[0.505,-0.156],[0.53,-0.122],[0.536,-0.06],[0.536,0.06],[0.53,0.122],[0.505,0.156],[0.44,0.172],[0.31,0.165]].map(([r,y])=>new THREE.Vector2(r,y)),56);
+tireGeo.rotateX(Math.PI/2);
+function cyl(r1,r2,h,seg,x,y,z){const g=new THREE.CylinderGeometry(r1,r2,h,seg);g.rotateX(Math.PI/2);g.translate(x,y,z);return g;}
+const rimParts=[cyl(0.315,0.315,0.3,40,0,0,0),cyl(0.1,0.13,0.12,20,0,0,0.2)];
+{const tor=new THREE.TorusGeometry(0.292,0.022,8,48);tor.translate(0,0,0.152);rimParts.push(tor);}
+for(let i=0;i<10;i++){const a=i/10*Math.PI*2;rimParts.push(cyl(0.022,0.022,0.07,6,Math.cos(a)*0.145,Math.sin(a)*0.145,0.17));}
+const rimGeo=mergeGeometries(rimParts.map(g=>g.index?g:g));
+const holeGeo=mergeGeometries(Array.from({length:8},(_,i)=>{const a=(i+0.5)/8*Math.PI*2;return cyl(0.036,0.036,0.02,14,Math.cos(a)*0.222,Math.sin(a)*0.222,0.153);}));
+const capGeo=cyl(0.06,0.06,0.02,16,0,0,0.262);
+function wheel(parent,x,z,flip){
+  const g=new THREE.Group();g.position.set(x,0.536,z);if(flip)g.rotation.y=Math.PI;
+  const s=new THREE.Group();g.add(s);
+  const t=new THREE.Mesh(tireGeo,M.rubber);t.castShadow=true;s.add(t);
+  s.add(new THREE.Mesh(rimGeo,M.alum));s.add(new THREE.Mesh(holeGeo,M.hole));s.add(new THREE.Mesh(capGeo,M.coral));
+  parent.add(g);wheels.push({s,sign:flip?1:-1});
+}
+function axle(parent,x,dual){
+  if(dual){wheel(parent,x,1.1,false);wheel(parent,x,0.76,false);wheel(parent,x,-1.1,true);wheel(parent,x,-0.76,true);}
+  else{wheel(parent,x,1.0,false);wheel(parent,x,-1.0,true);}
+  const a=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,2.1,10),M.dark);a.rotation.x=Math.PI/2;a.position.set(x,0.536,0);parent.add(a);
+}
+/* tractor: sculpted cab profile */
+const tractor=new THREE.Group();truck.add(tractor);
+const body=new THREE.Group();tractor.add(body);
+{
+  const s=new THREE.Shape();
+  s.moveTo(0,1.15);s.lineTo(2.1,1.15);s.lineTo(2.1,1.0);s.lineTo(4.067,1.0);
+  s.absarc(4.65,0.53,0.75,2.46,0.68,true);
+  s.lineTo(6.05,1.0);s.lineTo(6.18,1.12);s.lineTo(6.2,1.92);
+  s.quadraticCurveTo(6.16,2.22,5.6,2.3);s.lineTo(3.9,2.42);s.lineTo(3.12,3.48);
+  s.quadraticCurveTo(2.95,3.7,2.5,3.74);s.quadraticCurveTo(1.9,3.8,1.55,4.0);s.lineTo(0.2,4.08);
+  s.quadraticCurveTo(0,4.08,0,3.85);s.lineTo(0,1.15);
+  const geo=new THREE.ExtrudeGeometry(s,{depth:2.35,bevelEnabled:true,bevelThickness:0.06,bevelSize:0.05,bevelSegments:4,curveSegments:24});
+  geo.translate(0,0,-1.175);
+  body.add(part(geo,M.paint,0,0,0));
+}
+body.add(part(new THREE.BoxGeometry(0.04,1.22,2.18),M.glass,3.566,2.99,0,0,0,0.634));
+{
+  const w=new THREE.Shape();w.moveTo(2.25,2.55);w.lineTo(3.74,2.55);w.lineTo(3.2,3.33);w.lineTo(2.35,3.42);w.lineTo(2.25,2.55);
+  const wg=new THREE.ShapeGeometry(w);
+  [1.242,-1.242].forEach(z=>{const m=new THREE.Mesh(wg,M.glass);m.position.z=z;body.add(m);});
+  const sl=new THREE.PlaneGeometry(0.7,0.36);
+  [1.242,-1.242].forEach(z=>{const m=new THREE.Mesh(sl,M.glass);m.position.set(1.15,3.1,z);if(z<0)m.rotation.y=Math.PI;body.add(m);});
+}
+[1.243,-1.243].forEach(z=>body.add(part(new THREE.BoxGeometry(5.7,0.08,0.02),M.coral,3.0,1.42,z)));
+body.add(part(new THREE.BoxGeometry(0.06,0.8,1.32),M.dark,6.23,1.52,0));
+for(let i=0;i<7;i++)body.add(part(new THREE.BoxGeometry(0.06,0.035,1.22),M.chrome,6.27,1.2+i*0.105,0));
+body.add(part(new THREE.BoxGeometry(0.06,0.06,1.42),M.chrome,6.27,1.93,0));
+body.add(part(new THREE.BoxGeometry(0.06,0.06,1.42),M.chrome,6.27,1.12,0));
+[-1,1].forEach(s=>{
+  body.add(part(new THREE.BoxGeometry(0.3,0.15,0.5),M.head,6.06,1.99,0.85*s,0,0,-0.12));
+  body.add(part(new THREE.BoxGeometry(0.1,0.08,0.18),M.amber,6.02,1.98,1.14*s));
+  body.add(part(new THREE.BoxGeometry(0.05,0.05,0.36),M.dark,3.92,2.72,1.4*s));
+  body.add(part(new RoundedBoxGeometry(0.12,0.52,0.24,2,0.04),M.dark,3.92,2.78,1.6*s));
+  body.add(part(new THREE.BoxGeometry(0.02,0.46,0.2),M.glass,3.99,2.78,1.6*s));
+  body.add(part(new THREE.CylinderGeometry(0.05,0.03,0.6,12),M.chrome,2.3,3.86,0.34*s,0,0,Math.PI/2));
+  body.add(part(new THREE.CylinderGeometry(0.1,0.1,3.2,16),M.chrome,-0.14,2.7,1.1*s));
+});
+body.add(part(new THREE.BoxGeometry(0.5,0.08,2.3),M.paint,3.2,3.56,0,0,0,0.28));
+for(let i=0;i<5;i++)body.add(part(new THREE.BoxGeometry(0.06,0.05,0.12),M.amber,3.42,3.53,-0.8+i*0.4));
+async function doorLogo(){
+  try{await document.fonts.load('470px Anton');}catch(e){}
+  const tex=canvasTex(512,256,(g,w,h)=>{g.clearRect(0,0,w,h);drawLogo(g,40,30,196,'#EEF3F4');},null,true);
+  const mat=new THREE.MeshStandardMaterial({map:tex,transparent:true,roughness:0.3,metalness:0.2,polygonOffset:true,polygonOffsetFactor:-2});
+  const pg=new THREE.PlaneGeometry(0.95,0.475);
+  const a=new THREE.Mesh(pg,mat);a.position.set(2.95,1.88,1.246);body.add(a);
+  const b=new THREE.Mesh(pg,mat);b.position.set(2.95,1.88,-1.246);b.rotation.y=Math.PI;body.add(b);
+}
+/* chassis */
+tractor.add(part(new RoundedBoxGeometry(0.42,0.4,2.55,3,0.12),M.chrome,6.3,0.88,0));
+[-0.45,0.45].forEach(z=>tractor.add(part(new THREE.BoxGeometry(8.9,0.3,0.12),M.dark,1.6,0.95,z)));
+tractor.add(part(new THREE.BoxGeometry(1.2,0.12,1.4),M.dark,-1.3,1.18,0));
+[-1,1].forEach(s=>{
+  tractor.add(part(new THREE.CylinderGeometry(0.32,0.32,1.3,28),M.alum,2.95,0.8,1.0*s,0,0,Math.PI/2));
+  [2.5,3.4].forEach(x=>tractor.add(part(new THREE.CylinderGeometry(0.33,0.33,0.06,28),M.dark,x,0.8,1.0*s,0,0,Math.PI/2)));
+  tractor.add(part(new THREE.BoxGeometry(0.46,0.05,0.26),M.chrome,3.95,0.52,1.08*s));
+  tractor.add(part(new THREE.BoxGeometry(0.03,0.7,0.52),M.dark,-2.75,0.62,0.93*s));
+  [-0.8,-2.1].forEach(x=>{const f=new THREE.CylinderGeometry(0.64,0.64,0.78,28,1,true,Math.PI/2,Math.PI);f.rotateX(Math.PI/2);const m=part(f,new THREE.MeshStandardMaterial({color:0x1b2326,metalness:0.8,roughness:0.3,side:THREE.DoubleSide}),x,0.536,0.93*s);tractor.add(m);});
+});
+axle(tractor,4.65,false);axle(tractor,-0.8,true);axle(tractor,-2.1,true);
+const spot=new THREE.SpotLight(0xfff0dc,140,48,0.42,0.65,1.6);spot.position.set(6.4,1.5,0);spot.target.position.set(24,0,0);tractor.add(spot);tractor.add(spot.target);
+
+/* trailer */
+const trailer=new THREE.Group();truck.add(trailer);
+const tbody=new THREE.Group();trailer.add(tbody);
+const TL=16.15,TX=-8.475,TY=1.35+1.36,TR=TX-TL/2;
+tbody.add(part(new RoundedBoxGeometry(TL,2.72,2.6,2,0.06),M.trailer,TX,TY,0));
+tbody.add(part(new THREE.BoxGeometry(TL,0.16,2.5),M.steel,TX,1.28,0));
+[-1,1].forEach(s=>{
+  tbody.add(part(new THREE.BoxGeometry(8.2,0.84,0.04),M.skirt,TX+0.5,0.86,1.24*s));
+  tbody.add(part(new THREE.BoxGeometry(0.12,1.0,0.12),M.steel,-3.2,0.78,0.8*s));
+  tbody.add(part(new THREE.BoxGeometry(0.34,0.06,0.34),M.steel,-3.2,0.3,0.8*s));
+  tbody.add(part(new THREE.BoxGeometry(0.05,0.16,0.34),M.tail,TR-0.02,1.62,1.0*s));
+  tbody.add(part(new THREE.BoxGeometry(0.03,0.62,0.5),M.dark,TR+0.3,0.6,0.95*s));
+  for(let i=0;i<5;i++)tbody.add(part(new THREE.BoxGeometry(0.14,0.06,0.03),M.amber,-1.5-i*3.4,1.3,1.31*s));
+  tbody.add(part(new THREE.BoxGeometry(0.03,2.5,0.04),M.dark,TR-0.02,TY,1.25*s));
+});
+tbody.add(part(new THREE.BoxGeometry(0.1,0.08,1.6),M.steel,-3.2,0.95,0));
+tbody.add(part(new THREE.BoxGeometry(0.12,0.14,2.4),M.steel,TR+0.1,0.62,0));
+tbody.add(part(new THREE.BoxGeometry(0.03,2.55,0.03),M.dark,TR-0.03,TY,0));
+[-0.9,-0.4,0.4,0.9].forEach(z=>tbody.add(part(new THREE.CylinderGeometry(0.025,0.025,2.4,8),M.chrome,TR-0.06,TY,z)));
+tbody.add(part(new THREE.BoxGeometry(0.03,0.08,1.0),M.tail,TR-0.03,3.95,0));
+axle(trailer,-14.6,true);axle(trailer,-15.9,true);
+
+const LOGO_H=new Path2D('M8 8H92V130H128V8H212V348L128 262V200H92V262L8 348Z');
+function drawLogo(g,x,y,h,color){
+  g.save();g.translate(x,y);const s=h/352;g.scale(s,s);g.fillStyle=color;g.fill(LOGO_H);
+  for(let i=0;i<4;i++)g.fillRect(107,268+i*20,6,i===3?14:12);
+  g.font='470px Anton, Impact, sans-serif';g.textBaseline='alphabetic';
+  const w=g.measureText('SD').width;g.save();g.translate(222,348);g.scale(440/w,1);g.fillText('SD',0,0);g.restore();
+  g.restore();
+}
+async function livery(){
+  try{await Promise.all([document.fonts.load('470px Anton'),document.fonts.load('800 60px Sora'),document.fonts.load('500 30px "Inter Tight"')]);}catch(e){}
+  const tex=canvasTex(2048,344,(g,w,h)=>{
+    g.clearRect(0,0,w,h);
+    g.fillStyle='#0F313A';g.fillRect(0,h-46,w,46);
+    g.fillStyle='#F94735';g.fillRect(0,h-52,w,6);
+    drawLogo(g,1300,36,210,'#C1272D');
+    g.fillStyle='#0F313A';g.font='800 46px Sora, sans-serif';g.textBaseline='alphabetic';
+    g.fillText('LOGISTICS',1300,282);
+    const lw=g.measureText('LOGISTICS ').width;g.fillStyle='#F94735';g.fillText('AS A SERVICE',1300+lw,282);
+    g.fillStyle='#0F313A';g.font='800 44px Sora';g.fillText('Air · Ocean · Overland · Warehousing',70,120);
+    g.font='500 34px "Inter Tight", sans-serif';g.fillStyle='#2B4A53';g.fillText('Goodyear, Arizona',70,172);
+    g.fillStyle='#EEF3F4';g.font='600 26px "Inter Tight", sans-serif';g.fillText('shiphsd.com   ·   +1 (866) 837-0055',70,h-14);
+    for(let i=0;i<3;i++){g.save();g.translate(1150+i*34,70);g.transform(1,0,-0.4,1,0,0);g.fillStyle='#F94735';g.fillRect(0,0,24,52);g.restore();}
+  },null,true);
+  const mat=new THREE.MeshStandardMaterial({map:tex,transparent:true,roughness:0.4,metalness:0.1,polygonOffset:true,polygonOffsetFactor:-2});
+  const geo=new THREE.PlaneGeometry(TL-0.3,(TL-0.3)*344/2048);
+  const a=new THREE.Mesh(geo,mat);a.position.set(TX,TY-0.02,1.305);tbody.add(a);
+  const b=new THREE.Mesh(geo,mat);b.position.set(TX,TY-0.02,-1.305);b.rotation.y=Math.PI;tbody.add(b);
+}
+livery();doorLogo();
+truck.position.set(-60,0,ROADZ+1.6);
+scene.add(truck);
+
+/* ---------- globe ---------- */
+const GLOBE_Y=27,R=10;
+const globe=new THREE.Group();globe.position.set(0,GLOBE_Y,0);scene.add(globe);
+const spin=new THREE.Group();globe.add(spin);
+spin.add(new THREE.Mesh(new THREE.SphereGeometry(R,96,64),new THREE.MeshPhysicalMaterial({color:0x0D3440,roughness:0.42,metalness:0.15,clearcoat:0.7,clearcoatRoughness:0.2,envMapIntensity:0.7})));
+const MASK='AAAAIAAgJITEhJAQEAJCQAIMSJEBsDAAJ2LMDNwZNSN5ZrSM9t7TPvv6Z3vrr0/9vb+19f739t7dmvr7c3vrb03t/bk9Nben9v7dmZq7U3piTkzJmTk3JWfn5cScm5I7c35CzszL2Tk/I2fn7YScnZezc3ZOzs7bWTk/L2fn7KycnZOzcnZezs7JWTk7b2fl5KycnZOzcnJezsrJWTE7Jmbl7KycGZOzcnZWzMrJeTE5Lmbk5KyYnZUzYmJUzMjJOTk5K2bk5KickBUzcmJUzsjJGRkxK2dkxKickBczcmJWzsqIeTkhI2ZlxJyYlBOzIkJezMqIWTEhI2ZlhLyYlBGzYlJeTMoIWTEpK2flpKyclJGyclJWTspIQTkpI2XlpKSclJGSclJSzspIQTkpKSXlpKSUlJGCclJSCopISSkpKwXloKQUFJGSUlBSSspASSkoKyXloKSUlYOSUlBSyspASSkJKmUloKSEhIGyEhAUSkpQSSkJC2UloKyEhKGyEhCUSkpAWQkIBWUlICiUhICyEhASSkJAQSkIAWUlICQUhYCQUhAaykJASCgKASUlICQUhYCQUhACAkJAaCgKAQElIASEhICQUBCCSkpAaAoIQSEpIASFlIDQVBCCQkpACAoJQSEpIASVhKBQFBCCQlJACCoJQSEoAASFpIAQFJCKSlAACApBQSAoABWVoAAQVICKQFAACCpARSAoABWFoAAQVICKQFAAKgpARaCoABWFogBQVICKQFAAKgpAQaioABWBoAAUFICKUFABKgpAgSgoEAUhoEIUlICCUVEACkJAgag4AQUjoAAUjICCUVACCkZABSgoARWjoAAUhIACUVACKkJAAagIAQWioAQUhIACUFACCkBFASgIAQWgoAAUhIACUBACCkRBgSgIAQWgoEAUgIICUBACCkRBoSgIEQWgoEAUiIICURAiCkBBoSgQEQWioFQUiIICUQAiCkRBoSgQEQWiAEQUiIBCUSAiCkQBoSgQEQWiQEQUiIhCcSAiCkQFoCgQEQWiQEQUiApAUSAiCkSFgCgQEQWiQEAUiApBUSAgCkSFgCgQEQOiQEAUiAoBUSAgCkSBgCgQEQKiQEAUiAoBUSAgBkSBgCgQEQKiQEAEiAIBUSAgBkCBgCgQEQKgQEAEgAABUCAgBECAAAgAAQIgQAAEgAABEAAABECAAAgAAAIgAAAEgAAhEAAAAEAAAAgAAAAgAAAEAAAAEAAAAEAAEAgAAAAgAAAEAAAAEAAABAAAEAgAAAAgAAgAAAAAEAAAAAAAEAgAAAAgAAAAAAAAEAAAAAAAAAgAAAAgAAAAAAAAEAAAAAAAAAgAAAAAAAAAAAAAEAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
+{
+  const bytes=Uint8Array.from(atob(MASK),c=>c.charCodeAt(0));const n=9000,golden=Math.PI*(3-Math.sqrt(5));
+  const pts=[];for(let i=0;i<n;i++){if(!(bytes[i>>3]>>(i&7)&1))continue;const y=1-2*(i+0.5)/n,r=Math.sqrt(1-y*y),th=golden*i;pts.push(new THREE.Vector3(Math.cos(th)*r,y,Math.sin(th)*r));}
+  const dots=new THREE.InstancedMesh(new THREE.CircleGeometry(0.105,10),new THREE.MeshBasicMaterial({color:0xB8CED4}),pts.length);
+  const d=new THREE.Object3D();pts.forEach((p,k)=>{d.position.copy(p).multiplyScalar(R+0.03);d.lookAt(p.clone().multiplyScalar(R*2));d.updateMatrix();dots.setMatrixAt(k,d.matrix);});
+  spin.add(dots);
+}
+spin.add(new THREE.Mesh(new THREE.SphereGeometry(R*1.08,64,48),new THREE.ShaderMaterial({
+  uniforms:{c:{value:new THREE.Color(0x7FB3C2)}},side:THREE.BackSide,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false,
+  vertexShader:'varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+  fragmentShader:'uniform vec3 c;varying vec3 vN;void main(){float i=pow(0.72-dot(vN,vec3(0.0,0.0,1.0)),3.2);gl_FragColor=vec4(c*i,i);}'
+})));
+function ll(lat,lon,r){const phi=(90-lat)*Math.PI/180,th=(lon+180)*Math.PI/180;return new THREE.Vector3(-r*Math.sin(phi)*Math.cos(th),r*Math.cos(phi),r*Math.sin(phi)*Math.sin(th));}
+const HOME=[33.46,-112.36];
+const DEST=[[43.65,-79.38],[53.35,-6.26],[38.72,-9.14],[51.92,4.48],[50.11,8.68],[47.38,8.54],[41.01,28.98],[33.89,35.5],[24.71,46.68],[25.2,55.27],[13.76,100.5],[-6.2,106.85],[31.23,121.47],[35.68,139.69],[-33.87,151.21],[-36.85,174.76]];
+const arcMat=new THREE.MeshBasicMaterial({color:new THREE.Color(0xF94735).multiplyScalar(5.5),transparent:true,opacity:0.9});
+const cometMat=new THREE.MeshBasicMaterial({color:new THREE.Color(0xffd2c4).multiplyScalar(3)});
+const arcs=DEST.map(([la,lo],i)=>{
+  const a=ll(HOME[0],HOME[1],1),b=ll(la,lo,1),ang=a.angleTo(b),pts=[];
+  for(let s=0;s<=48;s++){const t=s/48;const p=a.clone().multiplyScalar(Math.sin((1-t)*ang)).add(b.clone().multiplyScalar(Math.sin(t*ang))).divideScalar(Math.sin(ang)).normalize();
+    pts.push(p.multiplyScalar(R+0.05+Math.sin(Math.PI*t)*(0.8+ang*2.4)));}
+  const curve=new THREE.CatmullRomCurve3(pts);
+  const geo=new THREE.TubeGeometry(curve,96,0.045,6,false);const mesh=new THREE.Mesh(geo,arcMat);geo.setDrawRange(0,0);spin.add(mesh);
+  const comet=new THREE.Mesh(new THREE.SphereGeometry(0.13,12,8),cometMat);comet.visible=false;spin.add(comet);
+  const end=new THREE.Mesh(new THREE.SphereGeometry(0.09,10,8),new THREE.MeshBasicMaterial({color:0xF94735}));end.position.copy(b.clone().multiplyScalar(R+0.04));spin.add(end);
+  return {curve,geo,comet,total:geo.index.count,off:i*0.071};
+});
+const homeMark=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.16,1.1,16),new THREE.MeshBasicMaterial({color:new THREE.Color(0xF94735).multiplyScalar(6)}));
+{const n=ll(HOME[0],HOME[1],1);homeMark.position.copy(n.clone().multiplyScalar(R+0.55));homeMark.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),n);spin.add(homeMark);}
+const ring=new THREE.Mesh(new THREE.RingGeometry(0.35,0.5,40),new THREE.MeshBasicMaterial({color:0xF94735,transparent:true,side:THREE.DoubleSide}));
+{const n=ll(HOME[0],HOME[1],1);ring.position.copy(n.clone().multiplyScalar(R+0.06));ring.lookAt(n.clone().multiplyScalar(R*2));spin.add(ring);}
+spin.rotation.y=-0.35;
+globe.scale.setScalar(0.0001);globe.visible=false;
+
+/* ---------- post-processing ---------- */
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,cam));
+let gtao=null;
+if(!small&&!reduce){
+  try{
+    const {GTAOPass}=await import('three/addons/postprocessing/GTAOPass.js');
+    gtao=new GTAOPass(scene,cam,innerWidth,innerHeight);
+    gtao.updateGtaoMaterial({radius:1.6,distanceExponent:1.4,thickness:1.2,scale:1.1,samples:16});
+    composer.addPass(gtao);
+  }catch(e){gtao=null;}
+}
+composer.addPass(new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),0.6,0.55,1.15));
+composer.addPass(new OutputPass());
+
+/* ---------- camera chapters ---------- */
+const V=[
+  {p:[60,38,86],t:[0,1,-4],ox:0,oy:0.1},
+  {p:[19,3.4,49],t:[-2,2.4,ROADZ+1.6],ox:0.2,oy:0.17},
+  {p:[46,27,40],t:[0,7,0],ox:-0.2,oy:0.18},
+  {p:[0,31,54],t:[0,GLOBE_Y-0.5,0],ox:-0.22,oy:0.2}
+];
+const mouse={x:0,y:0,sx:0,sy:0,active:false};
+const ray=new THREE.Raycaster(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),0),hit=new THREE.Vector3(),ndc=new THREE.Vector2();
+addEventListener('pointermove',e=>{mouse.x=e.clientX/innerWidth*2-1;mouse.y=-(e.clientY/innerHeight*2-1);mouse.active=true;},{passive:true});
+root.addEventListener('mouseleave',()=>{mouse.active=false;});
+let drag=null,spinVel=0;
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX};});
+addEventListener('pointerup',()=>{drag=null;});
+addEventListener('pointermove',e=>{if(drag){const dx=e.clientX-drag.x;drag.x=e.clientX;spinVel=dx*0.0045;}});
+
+const chs=[...document.querySelectorAll('.ch')];
+function chapter(){
+  const y=innerHeight*0.5,cs=chs.map(s=>{const b=s.getBoundingClientRect();return b.top+b.height/2;});
+  if(y<=cs[0])return 0;
+  for(let i=0;i<cs.length-1;i++)if(y<=cs[i+1])return i+(y-cs[i])/(cs[i+1]-cs[i]);
+  return cs.length-1;
+}
+function resize(){
+  cam.aspect=innerWidth/innerHeight;
+  renderer.setSize(innerWidth,innerHeight,false);composer.setSize(innerWidth,innerHeight);
+  if(gtao)gtao.setSize(innerWidth,innerHeight);
+}
+addEventListener('resize',resize);resize();
+
+const clamp=v=>v<0?0:v>1?1:v, ease=v=>v*v*(3-2*v), lerp=(a,b,t)=>a+(b-a)*t, easeOut=v=>1-Math.pow(1-v,3);
+const dummy=new THREE.Object3D(),q=new THREE.Quaternion(),yAxis=new THREE.Vector3(0,1,0);
+let f=0,last=performance.now(),t0=last;
+
+/* truck drives laps through the yard in the hero, parks for Overland, leaves for Ocean */
+const STOP=3,LAP=180;
+let tx=reduce?STOP:-70,tv=reduce?0:9,prevV=tv;
+function driveTruck(dt){
+  if(reduce){truck.position.x=STOP;truck.visible=f<1.6;return 0;}
+  const mode=f>1.25?'leave':f>0.12?'park':'loop';
+  let a;
+  if(mode==='loop')a=(9-tv)*0.8;
+  else if(mode==='park'){
+    let d=STOP-tx;if(d<-0.05)d+=LAP;
+    const want=Math.min(11,Math.sqrt(2*2.4*Math.max(d,0)));a=(want-tv)*2.4;
+    if(d<0.06&&tv<0.35){tv=0;a=0;tx=STOP;}
+  }else a=(15-tv)*0.7;
+  tv=Math.max(0,tv+a*dt);tx+=tv*dt;
+  if(mode!=='leave'&&tx>LAP/2)tx-=LAP;
+  truck.position.x=tx;truck.visible=tx>-LAP/2+2&&tx<LAP/2-2;
+  return a;
+}
+root.classList.add('ready');
+
+function frame(now){
+  requestAnimationFrame(frame);
+  const dt=Math.min((now-last)/1000,0.05);last=now;
+  if(chs[chs.length-1].getBoundingClientRect().bottom<-40)return;
+  const ft=chapter();f=reduce?ft:f+(ft-f)*Math.min(1,dt*4.5);
+  mouse.sx+=(mouse.x-mouse.sx)*Math.min(1,dt*3);mouse.sy+=(mouse.y-mouse.sy)*Math.min(1,dt*3);
+  const el=(now-t0)/1000;
+
+  /* camera */
+  const i=Math.min(Math.floor(f),2),t=ease(clamp(f-i)),a=V[i],b=V[f>=3?3:i+1];
+  const mob=innerWidth<760;
+  cam.position.set(lerp(a.p[0],b.p[0],t)+mouse.sx*2.4,lerp(a.p[1],b.p[1],t)+mouse.sy*1.4,lerp(a.p[2],b.p[2],t));
+  cam.lookAt(lerp(a.t[0],b.t[0],t),lerp(a.t[1],b.t[1],t),lerp(a.t[2],b.t[2],t));
+  const ox=mob?0:lerp(a.ox,b.ox,t),oy=mob?lerp(a.oy,b.oy,t):0;
+  cam.setViewOffset(innerWidth,innerHeight,ox*innerWidth,oy*innerHeight,innerWidth,innerHeight);
+  cam.updateProjectionMatrix();
+
+  /* hover lift over the yard */
+  let has=false;
+  if(mouse.active&&f<0.8){ndc.set(mouse.x,mouse.y);ray.setFromCamera(ndc,cam);has=!!ray.ray.intersectPlane(plane,hit);}
+  for(const c of cells){
+    let tg=0;if(has){const d=Math.hypot(c.x-hit.x,(c.z-hit.z)*1.4);if(d<9){const u=1-d/9;tg=u*u*1.9;}}
+    c.lift+=(tg-c.lift)*(reduce?1:Math.min(1,dt*7));
+  }
+
+  /* containers: yard -> terminal stack */
+  const m=clamp((f-1.2)/0.8);
+  for(let k=0;k<N;k++){
+    const v=yard[k],to=v.to;
+    const e=ease(clamp((m-v.delay*0.45)/0.55));
+    const x=lerp(v.x,to.x,e),z=lerp(v.z,to.z,e);
+    let y=lerp(v.y,to.y,e)+Math.sin(Math.PI*e)*10+v.cell.lift*(v.level+1)*1.25*(1-e);
+    if(!reduce){const ik=easeOut(clamp((el-0.2-(v.x+16)*0.018-v.level*0.12-(v.z+18)*0.01)/0.9));y+=(1-ik)*22;}
+    dummy.position.set(x,y,z);
+    q.setFromAxisAngle(yAxis,Math.sin(Math.PI*e)*0.35*(v.delay>0.5?1:-1));dummy.quaternion.copy(q);
+    dummy.updateMatrix();boxes.setMatrixAt(k,dummy.matrix);
+  }
+  boxes.instanceMatrix.needsUpdate=true;
+
+  /* truck */
+  const acc=driveTruck(dt);
+  if(truck.visible){
+    const turn=tv*dt/0.536;
+    for(const w of wheels)w.s.rotation.z+=w.sign*turn;
+    const k=Math.min(tv/9,1);
+    body.position.y=Math.sin(el*13)*0.012*k;
+    body.rotation.z=THREE.MathUtils.clamp(-acc*0.004,-0.012,0.012);
+    tbody.position.y=Math.sin(el*11+1.3)*0.01*k;
+    spot.intensity=f<1.6?140:0;
+  }
+
+  /* globe */
+  const g=ease(clamp((f-2.3)/0.7));
+  globe.visible=g>0.001;globe.scale.setScalar(Math.max(g,0.0001));
+  if(globe.visible){
+    if(!drag)spinVel*=0.94;
+    spin.rotation.y+=spinVel+(reduce?0:dt*0.06);
+    const ap=clamp((f-2.75)/0.25);
+    arcs.forEach(r=>{
+      r.geo.setDrawRange(0,Math.floor(r.total*ap/6)*6);
+      r.comet.visible=ap>0.98;
+      if(r.comet.visible){const u=reduce?0.6:((el*0.12+r.off)%1);r.comet.position.copy(r.curve.getPoint(u));}
+    });
+    const pulse=reduce?0.5:(el*0.8)%1;ring.scale.setScalar(1+pulse*2.2);ring.material.opacity=1-pulse;
+  }
+
+  composer.render();
+}
+requestAnimationFrame(frame);
+</script>
+
+</body></html>
